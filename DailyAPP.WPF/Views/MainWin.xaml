@@ -3,15 +3,101 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DailyAPP.WPF.Views"
+        xmlns:local="clr-namespace:DailyAPP.WPF"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="MainWin" Height="450" Width="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <TextBlock Text="主界面" FontSize="60"/>
-    </Grid>
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="-1" />
+    </WindowChrome.WindowChrome>
+
+    <materialDesign:DialogHost DialogTheme="Inherit"
+                             Identifier="RootDialog"
+                             SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
+
+        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+            <materialDesign:DrawerHost.LeftDrawerContent>
+                <DockPanel MinWidth="220">
+                    <StackPanel Margin="0,20" DockPanel.Dock="Top">
+                        <Image Source="{Binding UserIcon}" Width="50" Height="50" Margin="16">
+                            <Image.Clip>
+                                <EllipseGeometry Center="25,25" RadiusX="25" RadiusY="25"/>
+                            </Image.Clip>
+                        </Image>
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding LeftMenuList}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" >
+                                    <Image Source="{Binding MenuIcon}"/>
+                                    <TextBlock Text="{Binding MenuName}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </materialDesign:DrawerHost.LeftDrawerContent>
+
+            <DockPanel>
+
+                <materialDesign:ColorZone Padding="16"
+                                  materialDesign:ElevationAssist.Elevation="Dp4"
+                                  DockPanel.Dock="Top"
+                                  Mode="PrimaryMid">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Image Source="{Binding UserIcon}" Width="32" Height="32" Margin="0,0,10,0">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="16,16" RadiusX="16" RadiusY="16"/>
+                                </Image.Clip>
+                            </Image>
+                            <Button Padding="0" Margin="0,0,10,0" Width="32" Height="32" Command="{Binding MinimizeCommand}">
+                                <Image Source="/Images/min.png" Stretch="Fill"/>
+                            </Button>
+                            <Button Padding="0" Margin="0,0,10,0" Width="32" Height="32" Command="{Binding MaximizeCommand}">
+                                <Image Source="{Binding MaximizeIcon}" Stretch="Fill"/>
+                            </Button>
+                            <Button Padding="0" Width="32" Height="32" Command="{Binding CloseCommand}">
+                                <Image Source="/Images/close.png" Stretch="Fill"/>
+                            </Button>
+
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ToggleButton x:Name="MenuToggleButton"
+                            AutomationProperties.Name="HamburgerToggleButton"
+                            IsChecked="False"
+                            Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
+
+                            <Button Margin="24,0,0,0"
+                      Command="{Binding MovePrevCommand}"
+                      Content="{materialDesign:PackIcon Kind=ArrowLeft,
+                                                        Size=24}"
+                      Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                      Style="{StaticResource MaterialDesignToolButton}"
+                      ToolTip="Previous Item" />
+
+                            <Button Margin="16,0,0,0"
+                      Command="{Binding MoveNextCommand}"
+                      Content="{materialDesign:PackIcon Kind=ArrowRight,
+                                                        Size=24}"
+                      Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                      Style="{StaticResource MaterialDesignToolButton}"
+                      ToolTip="Next Item" />
+                            <TextBlock Margin="16,0,0,0"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     AutomationProperties.Name="Material Design In XAML Toolkit"
+                     FontSize="22"
+                     Text="我的日常" />
+                        </StackPanel>
+
+  
+                    </DockPanel>
+                </materialDesign:ColorZone>
+
+               
+            </DockPanel>
+        </materialDesign:DrawerHost>
+    </materialDesign:DialogHost>
 </Window>

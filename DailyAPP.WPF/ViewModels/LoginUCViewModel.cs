@@ -1,6 +1,6 @@
 ﻿using DailyAPP.WPF.DTOs;
 using DailyAPP.WPF.HttpClient;
-using DailyAPP.WPF.MsgEvents;
+using DailyAPP.WPF.Events;
 using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Events;
@@ -82,7 +82,11 @@ namespace DailyAPP.WPF.ViewModels
         public string ConfrimPwd
         {
             get { return _ConfrimPwd; }
-            set { _ConfrimPwd = value; }
+            set 
+            { 
+                _ConfrimPwd = value;
+                RaisePropertyChanged();
+            }
         }
 
 
@@ -120,6 +124,9 @@ namespace DailyAPP.WPF.ViewModels
             {
                 //eventAggregator.GetEvent<MsgEvent>().Publish("注册成功");
                 MessageQueue.Enqueue("注册成功");
+                AccountInfo = new AccountInfoDTO();
+                AccountInfo.Pwd = null;
+                ConfrimPwd = null;
                 TransitionerSelectedIndex = 0;
             }
             else

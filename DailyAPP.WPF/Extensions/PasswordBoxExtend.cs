@@ -29,7 +29,7 @@ namespace DailyAPP.WPF.Extensions
         // 设置附加属性值
         public static void SetBindablePassword(DependencyObject obj, string value)
         {
-            obj.SetValue(BindablePasswordProperty, value);
+            obj.SetValue(BindablePasswordProperty, value?? string.Empty);
         }
 
         // 附加属性变更时的处理逻辑
@@ -48,6 +48,10 @@ namespace DailyAPP.WPF.Extensions
                 {
                     passwordBox.Password = newPassword;
                 }
+            }
+            else
+            {
+                passwordBox.Password = string.Empty;
             }
 
             // 绑定PasswordChanged事件：UI侧输入密码时同步到附加属性

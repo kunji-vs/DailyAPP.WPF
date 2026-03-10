@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DailyAPP.WPF.MsgEvents
+namespace DailyAPP.WPF.Events
 {
     public class MsgEvent : PubSubEvent<string>
     {

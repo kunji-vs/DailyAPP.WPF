@@ -9,11 +9,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\20230217183828_1.jpg" />
+    <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+    <Page Remove="Services\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\app.ico" />
+    <None Remove="Images\20230217183828_1.jpg" />
+    <None Remove="Images\app.png" />
+    <None Remove="Images\beiwanglu.png" />
+    <None Remove="Images\close.png" />
+    <None Remove="Images\daiban.png" />
+    <None Remove="Images\max.png" />
+    <None Remove="Images\maxback.png" />
+    <None Remove="Images\min.png" />
+    <None Remove="Images\shezhi.png" />
+    <None Remove="Images\shouye.png" />
+    <None Remove="Images\user.png" />
+    <None Remove="Images\user2.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\app.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,10 +43,17 @@
 
   <ItemGroup>
     <Resource Include="Images\20230217183828_1.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
+    <Resource Include="Images\app.png" />
+    <Resource Include="Images\beiwanglu.png" />
+    <Resource Include="Images\close.png" />
+    <Resource Include="Images\daiban.png" />
+    <Resource Include="Images\max.png" />
+    <Resource Include="Images\maxback.png" />
+    <Resource Include="Images\min.png" />
+    <Resource Include="Images\shezhi.png" />
+    <Resource Include="Images\shouye.png" />
+    <Resource Include="Images\user.png" />
+    <Resource Include="Images\user2.png" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using DailyAPP.WPF.MsgEvents;
+﻿using DailyAPP.WPF.Events;
 using Prism.Events;
 using System;
 using System.Collections.Generic;

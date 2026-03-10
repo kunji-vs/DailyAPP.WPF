@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DailyAPP.WPF.Events;
+using Prism.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +21,33 @@ namespace DailyAPP.WPF.Views
     /// </summary>
     public partial class MainWin : Window
     {
-        public MainWin()
+        private readonly IEventAggregator _eventAggregator;
+
+        public MainWin(IEventAggregator eventAggregator)
         {
             InitializeComponent();
+            _eventAggregator = eventAggregator;
+
+            _eventAggregator.GetEvent<WindowStateChangedEvent>().Subscribe(OnWindowStateChangedEvent);
+
+            _eventAggregator.GetEvent<WindowsCloseEvent>().Subscribe(OnWindowsCloseEvent);
+        }
+
+        void OnWindowStateChangedEvent(WindowState state)
+        {
+            this.WindowState = state;
+        }
+
+        void OnWindowsCloseEvent()
+        {
+            this.Close();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            _eventAggregator.GetEvent<WindowStateChangedEvent>().Unsubscribe(OnWindowStateChangedEvent);
+            _eventAggregator.GetEvent<WindowsCloseEvent>().Unsubscribe(OnWindowsCloseEvent);
         }
     }
 }
