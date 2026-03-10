@@ -33,6 +33,10 @@ namespace DailyAPP.WPF
         {
             containerRegistry.RegisterForNavigation<MainWin, MainWinViewModel>();
             containerRegistry.RegisterDialog<LoginUC, LoginUCViewModel>();
+            containerRegistry.RegisterForNavigation<HomeUC, HomeUCModel>();
+            containerRegistry.RegisterForNavigation<WaitUC, WaitUCModel>();
+            containerRegistry.RegisterForNavigation<MemoUC, MemoUCModel>();
+            containerRegistry.RegisterForNavigation<SettingsUC, SettingsUCModel>();
 
             containerRegistry.RegisterSingleton<HttpRestClient>();
 

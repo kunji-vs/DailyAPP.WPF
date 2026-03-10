@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:DailyAPP.WPF"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="MainWin" Height="450" Width="800">
     <WindowChrome.WindowChrome>
@@ -26,12 +28,17 @@
                             </Image.Clip>
                         </Image>
                     </StackPanel>
-                    <ListBox ItemsSource="{Binding LeftMenuList}">
+                    <ListBox ItemsSource="{Binding LeftMenuList}" ItemContainerStyle="{StaticResource LeftMenuStyle}" x:Name="lbMenu">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding NavigateCommand}" CommandParameter="{Binding ElementName=lbMenu,Path=SelectedItem}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" >
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                     <Image Source="{Binding MenuIcon}"/>
-                                    <TextBlock Text="{Binding MenuName}"/>
+                                    <TextBlock Text="{Binding MenuName}" VerticalAlignment="Center" Padding="10,0"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -96,7 +103,8 @@
                     </DockPanel>
                 </materialDesign:ColorZone>
 
-               
+               <!--区域-->
+                <ContentControl prism:RegionManager.RegionName="ContentRegion" />
             </DockPanel>
         </materialDesign:DrawerHost>
     </materialDesign:DialogHost>

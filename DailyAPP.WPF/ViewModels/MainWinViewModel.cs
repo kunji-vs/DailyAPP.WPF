@@ -2,6 +2,7 @@
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using Prism.Navigation.Regions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,12 @@ namespace DailyAPP.WPF.ViewModels
 
         WindowState windowState = WindowState.Normal;
 
-        public MainWinViewModel(IEventAggregator _eventAggregator)
+        public MainWinViewModel(IEventAggregator _eventAggregator,IRegionManager _regionManager)
         {
             _maximizeIcon = new BitmapImage(new Uri("pack://application:,,,/Images/max.png", UriKind.Absolute));
             _userIcon = new BitmapImage(new Uri("pack://application:,,,/Images/user2.png", UriKind.Absolute));
             eventAggregator = _eventAggregator;
+            regionManager = _regionManager;
             LeftMenuList = new List<LeftMenuInfo>();
             CreateMenuList();
         }
@@ -93,27 +95,41 @@ namespace DailyAPP.WPF.ViewModels
             {
                 MenuIcon = new BitmapImage(new Uri("pack://application:,,,/Images/shouye.png", UriKind.Absolute)),
                 MenuName = "首页",
-                ViewName = "IndexView"
+                ViewName = "HomeUC"
             });
             LeftMenuList.Add(new LeftMenuInfo()
             {
                 MenuIcon = new BitmapImage(new Uri("pack://application:,,,/Images/daiban.png", UriKind.Absolute)),
                 MenuName = "代办事项",
-                ViewName = "ToDOView"
+                ViewName = "WaitUC"
             });
             LeftMenuList.Add(new LeftMenuInfo()
             {
                 MenuIcon = new BitmapImage(new Uri("pack://application:,,,/Images/beiwanglu.png", UriKind.Absolute)),
                 MenuName = "备忘录",
-                ViewName = "MemoView"
+                ViewName = "MemoUC"
             });
             LeftMenuList.Add(new LeftMenuInfo()
             {
                 MenuIcon = new BitmapImage(new Uri("pack://application:,,,/Images/shezhi.png", UriKind.Absolute)),
                 MenuName = "设置",
-                ViewName = "SettingsView"
+                ViewName = "SettingsUC"
             });
         }
+
+        #region 区域导航
+        //导航管理器
+        private IRegionManager regionManager;
+
+        public DelegateCommand<LeftMenuInfo> NavigateCommand => new DelegateCommand<LeftMenuInfo>((menu) =>
+        {
+            if (menu != null)
+            {
+                regionManager.Regions["ContentRegion"].RequestNavigate(menu.ViewName);
+            }
+        });
+
+        #endregion
 
     }
 }

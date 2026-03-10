@@ -12,8 +12,8 @@
             <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
         </ResourceDictionary.MergedDictionaries>
             <!--左侧菜单样式-->
-            <Style x:Name="LeftMenuStyle" TargetType="ListBoxItem">
-                <Setter Property="MinHeight" Value="50"/>
+            <Style x:Key="LeftMenuStyle" TargetType="ListBoxItem">
+                <Setter Property="MinHeight" Value="40"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
@@ -24,12 +24,12 @@
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="DarkCyan"/>
+                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
                                     <Setter TargetName="border" Property="Opacity" Value="0.2"/>
                                 </Trigger>
 
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="DarkCyan"/>
+                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
                                     <Setter TargetName="border" Property="Opacity" Value="0.2"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
