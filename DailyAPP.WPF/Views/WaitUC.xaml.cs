@@ -24,5 +24,7 @@ namespace DailyAPP.WPF.Views
         {
             InitializeComponent();
         }
+
+
     }
 }

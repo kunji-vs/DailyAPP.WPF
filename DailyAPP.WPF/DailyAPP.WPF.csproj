@@ -28,6 +28,7 @@
     <None Remove="Images\shouye.png" />
     <None Remove="Images\user.png" />
     <None Remove="Images\user2.png" />
+    <None Remove="Views\x225dk4z.alj~" />
   </ItemGroup>
 
   <ItemGroup>

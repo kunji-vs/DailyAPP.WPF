@@ -5,8 +5,74 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DailyAPP.WPF.Views"
              mc:Ignorable="d" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="功能正在开发中，敬请期待！" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    </Grid>
+    <md:DialogHost>
+        <md:DrawerHost IsRightDrawerOpen="{Binding IsRightDrawerOpen}">
+            <md:DrawerHost.RightDrawerContent>
+                <DockPanel Width="300" LastChildFill="False">
+                    <TextBlock Text="添加待办" Foreground="White" FontSize="18" FontWeight="Bold" Margin="15,10" DockPanel.Dock="Top"/>
+                    <StackPanel Margin="20" DockPanel.Dock="Top">
+                        <TextBlock Text="状态" Foreground="White" VerticalAlignment="Center"/>
+                        <ComboBox SelectedIndex="0" Margin="0,5" Foreground="White">
+                            <ComboBoxItem Content="待办"/>
+                            <ComboBoxItem Content="已完成"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <TextBox md:HintAssist.Hint="请输入待办标题" Foreground="White" Margin="20,0" DockPanel.Dock="Top"/>
+                    <TextBox md:HintAssist.Hint="请输入待办内容" Foreground="White" Margin="20,10" DockPanel.Dock="Top" MinHeight="100"/>
+                    <Button Content="添加" Margin="20,0" DockPanel.Dock="Top" Command="{Binding AddWaitCmm}" />
+                </DockPanel>
+            </md:DrawerHost.RightDrawerContent>
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
+                    <TextBox Margin="10,0" VerticalAlignment="Center" md:HintAssist.Hint="请输入待办事项" md:TextFieldAssist.HasClearButton="True"/>
+                    <TextBlock Text="筛选" Margin="10,0" VerticalAlignment="Center"/>
+                    <ComboBox SelectedIndex="0">
+                        <ComboBoxItem Content="全部"/>
+                        <ComboBoxItem Content="待办"/>
+                        <ComboBoxItem Content="已完成"/>
+                    </ComboBox>
+                </StackPanel>
+                <Button Content="添加待办" Margin="10" HorizontalAlignment="Right" Command="{Binding ShowAddWaitCmm}" />
+                
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+                    <ItemsControl Grid.Row="1" HorizontalAlignment="Center" ItemsSource="{Binding WaitList}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel></WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#008100" CornerRadius="5" Margin="3">
+                                    <Grid Width="220" Height="180" MaxWidth="250" Margin="3">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <md:PopupBox HorizontalAlignment="Right" Panel.ZIndex="1">
+                                            <Button Content="删除"></Button>
+                                        </md:PopupBox>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="10,5"/>
+                                        <TextBlock Grid.Row="1" Text="{Binding Content}" Foreground="DarkGray" FontWeight="Bold" Margin="10,5"/>
+                                        <Canvas ClipToBounds="True" Grid.ColumnSpan="2" Grid.RowSpan="2">
+                                            <Border Canvas.Top="10" Canvas.Right="-50" Width="120" Height="120" Background="#FFFFFF" CornerRadius="100" Opacity="0.1"/>
+                                            <Border Canvas.Top="80" Canvas.Right="-30" Width="120" Height="120" Background="#FFFFFF" CornerRadius="100" Opacity="0.1"/>
+                                        </Canvas>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </md:DrawerHost>
+    </md:DialogHost>
 </UserControl>

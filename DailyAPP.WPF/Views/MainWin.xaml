@@ -9,7 +9,7 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="MainWin" Height="450" Width="800">
+        Title="MainWin" Height="700" Width="1200">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="-1" />
     </WindowChrome.WindowChrome>
@@ -18,7 +18,7 @@
                              Identifier="RootDialog"
                              SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
 
-        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}" x:Name="drawerHost">
             <materialDesign:DrawerHost.LeftDrawerContent>
                 <DockPanel MinWidth="220">
                     <StackPanel Margin="0,20" DockPanel.Dock="Top">
@@ -73,7 +73,7 @@
                         <StackPanel Orientation="Horizontal">
                             <ToggleButton x:Name="MenuToggleButton"
                             AutomationProperties.Name="HamburgerToggleButton"
-                            IsChecked="False"
+                            IsChecked="{Binding IsLeftDrawerOpen, Mode=TwoWay}"
                             Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
 
                             <Button Margin="24,0,0,0"
@@ -82,7 +82,7 @@
                                                         Size=24}"
                       Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
                       Style="{StaticResource MaterialDesignToolButton}"
-                      ToolTip="Previous Item" />
+                      ToolTip="上一页" />
 
                             <Button Margin="16,0,0,0"
                       Command="{Binding MoveNextCommand}"
@@ -90,7 +90,7 @@
                                                         Size=24}"
                       Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
                       Style="{StaticResource MaterialDesignToolButton}"
-                      ToolTip="Next Item" />
+                      ToolTip="下一页" />
                             <TextBlock Margin="16,0,0,0"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
@@ -98,8 +98,6 @@
                      FontSize="22"
                      Text="我的日常" />
                         </StackPanel>
-
-  
                     </DockPanel>
                 </materialDesign:ColorZone>
 

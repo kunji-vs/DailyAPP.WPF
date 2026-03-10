@@ -19,7 +19,7 @@ namespace DailyAPP.WPF.ViewModels
 
         WindowState windowState = WindowState.Normal;
 
-        public MainWinViewModel(IEventAggregator _eventAggregator,IRegionManager _regionManager)
+        public MainWinViewModel(IEventAggregator _eventAggregator, IRegionManager _regionManager)
         {
             _maximizeIcon = new BitmapImage(new Uri("pack://application:,,,/Images/max.png", UriKind.Absolute));
             _userIcon = new BitmapImage(new Uri("pack://application:,,,/Images/user2.png", UriKind.Absolute));
@@ -118,14 +118,47 @@ namespace DailyAPP.WPF.ViewModels
         }
 
         #region 区域导航
+        private bool _isLeftDrawerOpen = false;
+        public bool IsLeftDrawerOpen
+        {
+            get => _isLeftDrawerOpen;
+            set
+            {
+                _isLeftDrawerOpen = value;
+                RaisePropertyChanged();
+            }
+        }
+
         //导航管理器
-        private IRegionManager regionManager;
+        private readonly IRegionManager regionManager;
+
+        private IRegionNavigationJournal journal;
 
         public DelegateCommand<LeftMenuInfo> NavigateCommand => new DelegateCommand<LeftMenuInfo>((menu) =>
         {
             if (menu != null)
             {
-                regionManager.Regions["ContentRegion"].RequestNavigate(menu.ViewName);
+                regionManager.Regions["ContentRegion"].RequestNavigate(menu.ViewName,callback=>
+                {
+                    journal = callback.Context.NavigationService.Journal;
+                });
+            }
+            IsLeftDrawerOpen = false;
+        });
+
+        public DelegateCommand MovePrevCommand => new DelegateCommand(() =>
+        {
+            if (journal != null && journal.CanGoBack)
+            {
+                journal.GoBack();
+            }
+        });
+
+        public DelegateCommand MoveNextCommand => new DelegateCommand(() =>
+        {
+            if (journal != null && journal.CanGoForward)
+            {
+                journal.GoForward();
             }
         });
 
