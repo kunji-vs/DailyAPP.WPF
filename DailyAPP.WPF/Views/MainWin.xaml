@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DailyAPP.WPF"
         mc:Ignorable="d"
+        FontFamily="微软雅黑"
         WindowStartupLocation="CenterScreen"
         xmlns:prism="http://prismlibrary.com/"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
@@ -14,7 +15,7 @@
         <WindowChrome GlassFrameThickness="-1" />
     </WindowChrome.WindowChrome>
 
-    <materialDesign:DialogHost DialogTheme="Inherit"
+    <materialDesign:DialogHost DialogTheme="Dark"
                              Identifier="RootDialog"
                              SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
 
@@ -28,16 +29,17 @@
                             </Image.Clip>
                         </Image>
                     </StackPanel>
-                    <ListBox ItemsSource="{Binding LeftMenuList}" ItemContainerStyle="{StaticResource LeftMenuStyle}" x:Name="lbMenu">
+                    <ListBox ItemsSource="{Binding LeftMenuList}" ItemContainerStyle="{StaticResource LeftMenuStyle}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding NavigateCommand}" CommandParameter="{Binding ElementName=lbMenu,Path=SelectedItem}"/>
+                                <i:InvokeCommandAction Command="{Binding NavigateCommand}" CommandParameter="{Binding SelectedItem,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                                    <Image Source="{Binding MenuIcon}"/>
+                                    <!--<Image Source="{Binding MenuIcon}"/>-->
+                                    <materialDesign:PackIcon Kind="{Binding MenuIconName}" Margin="10,0" Foreground="Black" Width="24" Height="24"/>
                                     <TextBlock Text="{Binding MenuName}" VerticalAlignment="Center" Padding="10,0"/>
                                 </StackPanel>
                             </DataTemplate>
@@ -47,7 +49,6 @@
             </materialDesign:DrawerHost.LeftDrawerContent>
 
             <DockPanel>
-
                 <materialDesign:ColorZone Padding="16"
                                   materialDesign:ElevationAssist.Elevation="Dp4"
                                   DockPanel.Dock="Top"

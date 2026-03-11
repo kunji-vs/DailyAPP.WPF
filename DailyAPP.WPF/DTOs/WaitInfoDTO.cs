@@ -14,7 +14,12 @@ namespace DailyAPP.WPF.DTOs
 
         public string Content { get; set; }
 
+        /// <summary>
+        /// 0-待办 1-已办
+        /// </summary>
         public int Status { get; set; }
+
+        public DateTime CreateTime { get; set; } = DateTime.Now;
 
     }
 }

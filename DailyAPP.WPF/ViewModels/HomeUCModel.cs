@@ -1,16 +1,31 @@
 ﻿using DailyAPP.WPF.DTOs;
+using DailyAPP.WPF.HttpClient;
 using DailyAPP.WPF.Models;
+using Newtonsoft.Json;
 using Prism.Mvvm;
+using Prism.Navigation;
+using Prism.Navigation.Regions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DailyAPP.WPF.ViewModels
 {
-    internal class HomeUCModel : BindableBase
+    internal class HomeUCModel : BindableBase,INavigationAware
     {
+
+        private string _loginInfo;
+
+        public string LoginInfo
+        {
+            get { return _loginInfo; }
+            set { _loginInfo = value; RaisePropertyChanged(); }
+        }
+
+
         private List<StatPanelInfo> _statPanelList;
 
         public List<StatPanelInfo> StatPanelList
@@ -35,9 +50,20 @@ namespace DailyAPP.WPF.ViewModels
             set { _memoList = value; }
         }
 
+        private AccountInfoDTO AccountInfo;
+
+        private readonly HttpRestClient httpClient;
+        public HomeUCModel(HttpRestClient httpClient)
+        {
+            CreateData1();
+            CreateData2();
+            this.httpClient = httpClient;
+        }
+
 
         void CreateCardData()
         {
+
             StatPanelList = new List<StatPanelInfo>
             {
                 new StatPanelInfo { Icon = "ClockFast", Name = "汇总", BackgroundColor = "#0BA0FD",ViewName="WaitUC",Result="9" },
@@ -46,10 +72,24 @@ namespace DailyAPP.WPF.ViewModels
                 new StatPanelInfo { Icon = "PlaylistStar", Name = "备忘录", BackgroundColor = "#FDA100",ViewName="MemoUC",Result="20" },
 
             };
+            ApiRequest req = new ApiRequest()
+            {
+                Route = $"Data/GetStatWaitData?accountId={AccountInfo.AccountId}",
+                Method = RestSharp.Method.GET,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode == 200)
+            {
+                var statWaitInfo = JsonConvert.DeserializeObject<StatWaitDTO>(res.ResultData.ToString());
+                StatPanelList[0].Result = statWaitInfo.TotalCount.ToString();
+                StatPanelList[1].Result = statWaitInfo.FinishCount.ToString();
+                StatPanelList[2].Result = statWaitInfo.FinishPercent;
+            }
         }
 
         void CreateData1()
         {
+
             WaitList = new List<WaitInfoDTO>
             {
                 new WaitInfoDTO { WaitId = 1, Title = "待办事项1", Content = "这是待办事项1的内容", Status = 0 },
@@ -71,11 +111,29 @@ namespace DailyAPP.WPF.ViewModels
             };
         }
 
-        public HomeUCModel()
+        public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            CreateCardData();
-            CreateData1();
-            CreateData2();
+            //用来接收
+            if(navigationContext != null && navigationContext.Parameters.ContainsKey("userInfo"))
+            {
+                AccountInfo = navigationContext.Parameters.GetValue<AccountInfoDTO>("userInfo");
+                LoginInfo = $"欢迎您，{AccountInfo.Name}！ 今天是：{DateTime.Now.ToString("yyyy年MM月dd日 ddd")}";
+                CreateCardData();
+            }
+
         }
+
+        public bool IsNavigationTarget(NavigationContext navigationContext)
+        {
+            return true;
+        }
+
+        public void OnNavigatedFrom(NavigationContext navigationContext)
+        {
+            //处理拦截
+        }
+
+
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DailyAPP.WPF.Models
 {
-    public class StatPanelInfo
+    public class StatPanelInfo:BindableBase
     {
         /// <summary>
         /// 图标
@@ -18,10 +19,19 @@ namespace DailyAPP.WPF.Models
         /// </summary>
         public string Name { get; set; }
 
+
+        private string _result;
         /// <summary>
         /// 结果
         /// </summary>
-        public string Result { get; set; }
+        public string Result { 
+            get => _result;
+            set
+            {
+                _result = value;
+                RaisePropertyChanged();
+            } 
+        }
 
         /// <summary>
         /// 背景颜色

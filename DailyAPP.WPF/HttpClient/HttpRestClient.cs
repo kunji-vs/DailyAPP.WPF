@@ -45,7 +45,8 @@ namespace DailyAPP.WPF.HttpClient
                 var res = Client.Execute(request);
                 if (res.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    return JsonConvert.DeserializeObject<ApiResponse>(res.Content);
+                    var result = JsonConvert.DeserializeObject<ApiResponse>(res.Content);
+                    return result;
                 }
                 else
                 {

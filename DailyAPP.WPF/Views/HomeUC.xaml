@@ -15,7 +15,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <!--第一行-->
-        <TextBlock Text="欢迎使用DailyAPP！" FontSize="22" VerticalAlignment="Center" Margin="15,10"/>
+        <TextBlock Text="{Binding LoginInfo}" FontSize="22" VerticalAlignment="Center" Margin="15,10"/>
         <!--第二行-->
         <ItemsControl Grid.Row="1" ItemsSource="{Binding StatPanelList}">
             <ItemsControl.ItemsPanel>

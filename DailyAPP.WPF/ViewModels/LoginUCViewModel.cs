@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Newtonsoft.Json;
 
 namespace DailyAPP.WPF.ViewModels
 {
@@ -176,7 +177,17 @@ namespace DailyAPP.WPF.ViewModels
             var res = HttpRestClient.Excute(req);
             if(res.ResultCode == 200)
             {
-                RequestClose.Invoke(ButtonResult.OK);
+                DialogParameters para = new DialogParameters();
+                var account = JsonConvert.DeserializeObject<AccountInfoDTO>(res.ResultData.ToString());
+                if (account != null && account.Name != null)
+                {
+                    para.Add("userInfo", account);
+                    RequestClose.Invoke(para, ButtonResult.OK);
+                }
+                else
+                {
+                    MessageBox.Show("登录信息异常");
+                }
             }
             else
             {
@@ -194,7 +205,7 @@ namespace DailyAPP.WPF.ViewModels
 
         public void OnDialogClosed()
         {
- 
+            
         }
 
         public void OnDialogOpened(IDialogParameters parameters)

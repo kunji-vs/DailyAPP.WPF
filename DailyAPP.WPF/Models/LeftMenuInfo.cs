@@ -9,10 +9,15 @@ namespace DailyAPP.WPF.Models
 {
     public class LeftMenuInfo
     {
-        /// <summary>
-        /// 菜单头像
-        /// </summary>
-        public BitmapImage MenuIcon { get; set; }
+        public string Id { get; set; }
+
+        ///// <summary>
+        ///// 菜单头像
+        ///// </summary>
+        //public BitmapImage MenuIcon { get; set; }
+
+        public string MenuIconName { get; set; }
+
         /// <summary>
         /// 菜单名称
         /// </summary>
