@@ -3,7 +3,9 @@ using DailyAPP.WPF.AutoMappers;
 using DailyAPP.WPF.DTOs;
 using DailyAPP.WPF.HttpClient;
 using DailyAPP.WPF.ViewModels;
+using DailyAPP.WPF.ViewModels.Dialogs;
 using DailyAPP.WPF.Views;
+using DailyAPP.WPF.Views.Dialogs;
 using DryIoc;
 using MaterialDesignThemes;
 using MaterialDesignThemes.Wpf;
@@ -42,6 +44,7 @@ namespace DailyAPP.WPF
             containerRegistry.RegisterForNavigation<MemoUC, MemoUCModel>("MemoUC");
             containerRegistry.RegisterForNavigation<SettingsUC, SettingsUCModel>("SettingsUC");
             containerRegistry.RegisterForNavigation<PersonalUC, PersonalUCModel>();
+            containerRegistry.RegisterDialog<AddWaitUC, AddWaitUCModel>();
             containerRegistry.RegisterForNavigation<SysSetUC>();
             containerRegistry.RegisterForNavigation<AboutUs>();
 

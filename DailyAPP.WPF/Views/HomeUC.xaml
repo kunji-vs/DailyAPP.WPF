@@ -52,7 +52,8 @@
                 <DockPanel Margin="10,0">
                     <DockPanel Margin="10,5" LastChildFill="False" DockPanel.Dock="Top">
                         <TextBlock Text="待办事项" FontWeight="Bold" FontSize="18"/>
-                        <Button Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" DockPanel.Dock="Right" VerticalAlignment="Top">
+                        <Button Width="30" Height="30" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" DockPanel.Dock="Right" VerticalAlignment="Top"
+                                Command="{Binding ShowAddWaitUC}">
                             <md:PackIcon Kind="Add"></md:PackIcon>
                         </Button>
                     </DockPanel>

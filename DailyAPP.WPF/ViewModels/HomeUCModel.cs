@@ -2,6 +2,9 @@
 using DailyAPP.WPF.HttpClient;
 using DailyAPP.WPF.Models;
 using Newtonsoft.Json;
+using Prism.Commands;
+using Prism.Dialogs;
+using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Navigation;
 using Prism.Navigation.Regions;
@@ -11,11 +14,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DailyAPP.WPF.ViewModels
 {
     internal class HomeUCModel : BindableBase,INavigationAware
     {
+
+        private readonly IDialogService dialogService;
+
 
         private string _loginInfo;
 
@@ -53,13 +60,35 @@ namespace DailyAPP.WPF.ViewModels
         private AccountInfoDTO AccountInfo;
 
         private readonly HttpRestClient httpClient;
-        public HomeUCModel(HttpRestClient httpClient)
+        public HomeUCModel(HttpRestClient httpClient, IDialogService _dialogService)
         {
-            CreateData1();
             CreateData2();
             this.httpClient = httpClient;
+            dialogService = _dialogService;
         }
 
+
+        public DelegateCommand ShowAddWaitUC => new DelegateCommand(() =>
+        {
+            var param = new DialogParameters();
+            param.Add("userInfo", AccountInfo);
+            param.Add("title", "添加待办");
+            dialogService.ShowDialog("AddWaitUC", param, callback =>
+            {
+                if (callback.Result == ButtonResult.OK)
+                {
+                    if (callback.Parameters.ContainsKey("waitInfo"))
+                    {
+                        var waitInfo = callback.Parameters.GetValue<WaitInfoDTO>("waitInfo");
+                        var success = AddWaitData(waitInfo);
+                        if(success)
+                        {
+                            GetWaitData();
+                        }
+                    }
+                }
+            });
+        });
 
         void CreateCardData()
         {
@@ -87,17 +116,40 @@ namespace DailyAPP.WPF.ViewModels
             }
         }
 
-        void CreateData1()
+        void GetWaitData()
         {
-
-            WaitList = new List<WaitInfoDTO>
+            var req = new ApiRequest()
             {
-                new WaitInfoDTO { WaitId = 1, Title = "待办事项1", Content = "这是待办事项1的内容", Status = 0 },
-                new WaitInfoDTO { WaitId = 2, Title = "待办事项2", Content = "这是待办事项2的内容", Status = 0 },
-                new WaitInfoDTO { WaitId = 3, Title = "待办事项3", Content = "这是待办事项3的内容", Status = 1 },
-                new WaitInfoDTO { WaitId = 4, Title = "待办事项4", Content = "这是待办事项4的内容", Status = 0 },
-                new WaitInfoDTO { WaitId = 5, Title = "待办事项5", Content = "这是待办事项5的内容", Status = 1 },
+                Route = "Data/GetWaitData?accountId=" + AccountInfo.AccountId,
+                Method = RestSharp.Method.GET,
             };
+            var res = httpClient.Excute(req);
+            if(res.ResultCode == 200)
+            {
+                WaitList = JsonConvert.DeserializeObject<List<WaitInfoDTO>>(res.ResultData.ToString());
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 添加待办数据
+        /// </summary>
+        /// <param name="waitInfo"></param>
+        bool AddWaitData(WaitInfoDTO waitInfo)
+        {
+            var req = new ApiRequest()
+            {
+                Route = "Data/AddWaitData",
+                Method = RestSharp.Method.POST,
+                Parameters = waitInfo,
+            };
+            var res = httpClient.Excute(req);
+            if(res.ResultCode != 200)
+            {
+               MessageBox.Show("添加失败！"+res.msg);
+                return false;
+            }
+            return true;
         }
 
         void CreateData2()
@@ -119,6 +171,7 @@ namespace DailyAPP.WPF.ViewModels
                 AccountInfo = navigationContext.Parameters.GetValue<AccountInfoDTO>("userInfo");
                 LoginInfo = $"欢迎您，{AccountInfo.Name}！ 今天是：{DateTime.Now.ToString("yyyy年MM月dd日 ddd")}";
                 CreateCardData();
+                GetWaitData();
             }
 
         }
