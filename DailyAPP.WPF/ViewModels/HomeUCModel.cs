@@ -80,6 +80,7 @@ namespace DailyAPP.WPF.ViewModels
                     if (callback.Parameters.ContainsKey("waitInfo"))
                     {
                         var waitInfo = callback.Parameters.GetValue<WaitInfoDTO>("waitInfo");
+                        waitInfo.CreateTime = DateTime.Now;
                         var success = AddWaitData(waitInfo);
                         if(success)
                         {
@@ -90,6 +91,32 @@ namespace DailyAPP.WPF.ViewModels
             });
         });
 
+        public DelegateCommand<WaitInfoDTO> ShowEditWaitUC => new DelegateCommand<WaitInfoDTO>((waitInfo) =>
+        {
+            var param = new DialogParameters();
+            param.Add("userInfo", AccountInfo);
+            param.Add("waitInfo", waitInfo);
+            param.Add("title", "编辑待办");
+            dialogService.ShowDialog("AddWaitUC", param, callback =>
+            {
+                if (callback.Result == ButtonResult.OK)
+                {
+                    if (callback.Parameters.ContainsKey("waitInfo"))
+                    {
+                        var waitInfo = callback.Parameters.GetValue<WaitInfoDTO>("waitInfo");
+                        var success = UpdateWaitData(waitInfo);
+                        if (success)
+                        {
+                            GetWaitData();
+                        }
+                    }
+                }
+            });
+        });
+
+        /// <summary>
+        /// 创建主页卡片数据
+        /// </summary>
         void CreateCardData()
         {
 
@@ -116,6 +143,9 @@ namespace DailyAPP.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// 获取待办事项数据
+        /// </summary>
         void GetWaitData()
         {
             var req = new ApiRequest()
@@ -126,7 +156,8 @@ namespace DailyAPP.WPF.ViewModels
             var res = httpClient.Excute(req);
             if(res.ResultCode == 200)
             {
-                WaitList = JsonConvert.DeserializeObject<List<WaitInfoDTO>>(res.ResultData.ToString());
+                var waitinfo = JsonConvert.DeserializeObject<List<WaitInfoDTO>>(res.ResultData.ToString());
+                WaitList = waitinfo.Where(x=>x.Status==0).ToList();
                 return;
             }
         }
@@ -151,6 +182,58 @@ namespace DailyAPP.WPF.ViewModels
             }
             return true;
         }
+
+        /// <summary>
+        /// 更新待办数据
+        /// </summary>
+        /// <param name="waitInfo"></param>
+        /// <returns></returns>
+        bool UpdateWaitData(WaitInfoDTO waitInfo)
+        {
+            var req = new ApiRequest()
+            {
+                Route = "Data/UpdateWaitData",
+                Method = RestSharp.Method.POST,
+                Parameters = waitInfo,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode != 200)
+            {
+                MessageBox.Show("操作失败！" + res.msg);
+                return false;
+            }
+            return true;
+        }
+
+
+        public DelegateCommand<WaitInfoDTO> CompleteWaitCom => new DelegateCommand<WaitInfoDTO>((waitInfo) =>
+        {
+            var para = new DialogParameters();
+            para.Add("message", $"确定要完成待办事项：{waitInfo.Title}吗？");
+            var dialogResult = ButtonResult.OK;
+            dialogService.ShowDialog("CustomMessageBox", para, callback =>
+            {
+                dialogResult = callback.Result;
+
+            });
+            if (dialogResult != ButtonResult.OK)
+            {
+                return;
+            }
+            var req = new ApiRequest()
+            {
+                Route = "Data/UpdateWaitData",
+                Method = RestSharp.Method.POST,
+                Parameters = waitInfo,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode != 200)
+            {
+                MessageBox.Show("操作失败！" + res.msg);
+                return;
+            }
+            GetWaitData();
+        });
 
         void CreateData2()
         {

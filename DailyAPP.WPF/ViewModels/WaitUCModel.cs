@@ -1,17 +1,50 @@
 ﻿using DailyAPP.WPF.DTOs;
+using DailyAPP.WPF.HttpClient;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Navigation.Regions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DailyAPP.WPF.ViewModels
 {
-    internal class WaitUCModel:BindableBase
+    internal class WaitUCModel:BindableBase,INavigationAware
     {
 
+        private string _drawerHostTitle = "添加待办";
+
+        public string DrawerHostTitle
+        {
+            get { return _drawerHostTitle; }
+            set { _drawerHostTitle = value; RaisePropertyChanged(); }
+        }
+
+        private enum WaitOperateType
+        {
+            Add,
+            Edit,
+        }
+
+        private WaitOperateType OperateType = WaitOperateType.Add;
+
+        private AccountInfoDTO AccountInfo;
+
+        private WaitInfoDTO _operateWaitDataDTO = new WaitInfoDTO();
+
+        public WaitInfoDTO OperateWaitDataDTO
+        {
+            get { return _operateWaitDataDTO; }
+            set { _operateWaitDataDTO = value; RaisePropertyChanged(); }
+        }
+
+
+        HttpRestClient httpClient;
 
         private List<WaitInfoDTO> _waitList;
 
@@ -21,33 +54,51 @@ namespace DailyAPP.WPF.ViewModels
             set { _waitList = value; RaisePropertyChanged(); }
         }
 
-        public WaitUCModel()
+        public WaitUCModel(HttpRestClient httpRestClient )
         {
-            CreateData1();
+            httpClient = httpRestClient;
+            OperateWaitDataDTO = new WaitInfoDTO();
         }
 
-        void CreateData1()
+        void GetWaitData()
         {
-            WaitList = new List<WaitInfoDTO>
+            var req = new ApiRequest()
             {
-                new WaitInfoDTO { Title = "待办事项1 ", Content = "这是待办事项1 的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项2 ", Content = "这是待办事项2 的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项3 ", Content = "这是待办事项3 的内容", Status = 1 },
-                new WaitInfoDTO { Title = "待办事项4 ", Content = "这是待办事项4 的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项5 ", Content = "这是待办事项5 的内容", Status = 1 },
-                new WaitInfoDTO { Title = "待办事项6 ", Content = "这是待办事项6 的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项7 ", Content = "这是待办事项7 的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项8 ", Content = "这是待办事项8 的内容", Status = 1 },
-                new WaitInfoDTO { Title = "待办事项9 ", Content = "这是待办事项9 的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项10", Content = "这是待办事项10的内容", Status = 1 },
-                new WaitInfoDTO { Title = "待办事项11", Content = "这是待办事项11的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项12", Content = "这是待办事项12的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项13", Content = "这是待办事项13的内容", Status = 1 },
-                new WaitInfoDTO { Title = "待办事项14", Content = "这是待办事项14的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项15", Content = "这是待办事项15的内容", Status = 1 },
-                new WaitInfoDTO { Title = "待办事项16", Content = "这是待办事项16的内容", Status = 0 },
-                new WaitInfoDTO { Title = "待办事项17", Content = "这是待办事项17的内容", Status = 0 },
+                Route = "Data/GetWaitData?accountId=" + AccountInfo.AccountId,
+                Method = RestSharp.Method.GET,
             };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode == 200)
+            {
+                var waitinfo = JsonConvert.DeserializeObject<List<WaitInfoDTO>>(res.ResultData.ToString());
+                WaitList = waitinfo.Where(x => x.Status == 0).ToList();
+                return;
+            }
+            
+        }
+
+        public void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            if (navigationContext == null) return;
+            if(navigationContext.Parameters.ContainsKey("userInfo"))
+            {
+                var userInfo = navigationContext.Parameters["userInfo"] as AccountInfoDTO;
+                if (userInfo != null)
+                {
+                    AccountInfo = userInfo;
+                    GetWaitData();
+                }
+            }
+        }
+
+        public bool IsNavigationTarget(NavigationContext navigationContext)
+        {
+            return true;
+        }
+
+        public void OnNavigatedFrom(NavigationContext navigationContext)
+        {
+            
         }
 
         #region 添加待办
@@ -64,8 +115,116 @@ namespace DailyAPP.WPF.ViewModels
 
         public DelegateCommand ShowAddWaitCmm => new DelegateCommand(() =>
         {
+            DrawerHostTitle = "添加待办";
+            OperateWaitDataDTO = new WaitInfoDTO();
+            OperateType = WaitOperateType.Add;
             IsRightDrawerOpen = true;
         });
+
+        public DelegateCommand<WaitInfoDTO> ShowEditWaitCmm => new DelegateCommand<WaitInfoDTO> ((waitInfo) =>
+        {
+            OperateWaitDataDTO = waitInfo;
+            DrawerHostTitle = "编辑待办";
+            OperateType = WaitOperateType.Edit;
+            IsRightDrawerOpen = true;
+        });
+
+        public DelegateCommand AddWaitCmm => new DelegateCommand(() =>
+        {
+            OperateWaitDataDTO.AccountId = AccountInfo.AccountId;
+            OperateWaitDataDTO.CreateTime = DateTime.Now;
+            var res = false;
+            switch (OperateType)
+            {
+                case WaitOperateType.Add:
+                    res = AddWaitData(OperateWaitDataDTO);
+                    break;
+                case WaitOperateType.Edit:
+                    res = UpdateWaitData(OperateWaitDataDTO);
+                    break;
+                default:
+                    break;
+            }
+            if(res)
+            {
+                GetWaitData();
+                IsRightDrawerOpen = false;
+                OperateWaitDataDTO = new WaitInfoDTO();
+            }
+        });
+
+        public DelegateCommand<WaitInfoDTO> DeleteWaitDataCmm => new DelegateCommand<WaitInfoDTO>((waitInfo) =>
+        {
+            var res = DeleteWaitData(waitInfo);
+            if(res)
+            {
+                GetWaitData();
+            }
+        });
+
+
+        /// <summary>
+        /// 添加待办数据
+        /// </summary>
+        /// <param name="waitInfo"></param>
+        bool AddWaitData(WaitInfoDTO waitInfo)
+        {
+            var req = new ApiRequest()
+            {
+                Route = "Data/AddWaitData",
+                Method = RestSharp.Method.POST,
+                Parameters = waitInfo,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode != 200)
+            {
+                MessageBox.Show("添加失败！" + res.msg);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 更新待办数据
+        /// </summary>
+        /// <param name="waitInfo"></param>
+        /// <returns></returns>
+        bool UpdateWaitData(WaitInfoDTO waitInfo)
+        {
+            var req = new ApiRequest()
+            {
+                Route = "Data/UpdateWaitData",
+                Method = RestSharp.Method.POST,
+                Parameters = waitInfo,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode != 200)
+            {
+                MessageBox.Show("操作失败！" + res.msg);
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// 删除待办数据
+        /// </summary>
+        /// <param name="waitInfo"></param>
+        /// <returns></returns>
+        bool DeleteWaitData(WaitInfoDTO waitInfo)
+        {
+            var req = new ApiRequest()
+            {
+                Route = "Data/DeleteWaitData?waitId="+waitInfo.WaitId,
+                Method = RestSharp.Method.GET,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode != 200)
+            {
+                MessageBox.Show("操作失败！" + res.msg);
+                return false;
+            }
+            return true;
+        }
 
         #endregion
 

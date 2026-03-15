@@ -5,22 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DailyAPP.WPF.Views"
              mc:Ignorable="d" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              d:DesignHeight="450" d:DesignWidth="800">
     <md:DialogHost>
         <md:DrawerHost IsRightDrawerOpen="{Binding IsRightDrawerOpen}">
             <md:DrawerHost.RightDrawerContent>
                 <DockPanel Width="300" LastChildFill="False">
-                    <TextBlock Text="添加待办" Foreground="White" FontSize="18" FontWeight="Bold" Margin="15,10" DockPanel.Dock="Top"/>
+                    <TextBlock Text="{Binding DrawerHostTitle}" Foreground="White" FontSize="18" FontWeight="Bold" Margin="15,10" DockPanel.Dock="Top"/>
                     <StackPanel Margin="20" DockPanel.Dock="Top">
                         <TextBlock Text="状态" Foreground="White" VerticalAlignment="Center"/>
-                        <ComboBox SelectedIndex="0" Margin="0,5" Foreground="White">
-                            <ComboBoxItem Content="待办"/>
-                            <ComboBoxItem Content="已完成"/>
+                        <ComboBox SelectedIndex="0" SelectedValue="{Binding OperateWaitDataDTO.Status, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,5" Foreground="White">
+                            <ComboBoxItem Content="待办" Tag="0"/>
+                            <ComboBoxItem Content="已完成" Tag="1"/>
                         </ComboBox>
                     </StackPanel>
-                    <TextBox md:HintAssist.Hint="请输入待办标题" Foreground="White" Margin="20,0" DockPanel.Dock="Top"/>
-                    <TextBox md:HintAssist.Hint="请输入待办内容" Foreground="White" Margin="20,10" DockPanel.Dock="Top" MinHeight="100"/>
+                    <TextBox md:HintAssist.Hint="请输入待办标题" Text="{Binding OperateWaitDataDTO.Title}" Foreground="White" Margin="20,0" DockPanel.Dock="Top"/>
+                    <TextBox md:HintAssist.Hint="请输入待办内容" Text="{Binding OperateWaitDataDTO.Content}" Foreground="White" Margin="20,10" DockPanel.Dock="Top" MinHeight="100"/>
                     <Button Content="添加" Margin="20,0" DockPanel.Dock="Top" Command="{Binding AddWaitCmm}" />
                 </DockPanel>
             </md:DrawerHost.RightDrawerContent>
@@ -40,7 +41,7 @@
                     </ComboBox>
                 </StackPanel>
                 <Button Content="添加待办" Margin="10" HorizontalAlignment="Right" Command="{Binding ShowAddWaitCmm}" />
-                
+
                 <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
                     <ItemsControl Grid.Row="1" HorizontalAlignment="Center" ItemsSource="{Binding WaitList}">
                         <ItemsControl.ItemsPanel>
@@ -59,10 +60,13 @@
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
                                             <md:PopupBox HorizontalAlignment="Right" Panel.ZIndex="1">
-                                                <Button Content="删除"></Button>
+                                                <StackPanel>
+                                                    <Button Content="编辑" Command="{Binding DataContext.ShowEditWaitCmm,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" CommandParameter="{Binding}"></Button>
+                                                    <Button Content="删除" Command="{Binding DataContext.DeleteWaitDataCmm,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" CommandParameter="{Binding}"></Button>
+                                                </StackPanel>
                                             </md:PopupBox>
-                                            <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="10,5"/>
-                                            <TextBlock Grid.Row="1" Text="{Binding Content}" Foreground="DarkGray" FontWeight="Bold" Margin="10,5"/>
+                                            <TextBlock Text="{Binding Title, Mode=TwoWay}" FontWeight="Bold" Margin="10,5"/>
+                                            <TextBlock Grid.Row="1" Text="{Binding Content, Mode=TwoWay}" Foreground="DarkGray" FontWeight="Bold" Margin="10,5"/>
                                             <Canvas ClipToBounds="True" Grid.ColumnSpan="2" Grid.RowSpan="2">
                                                 <Border Canvas.Top="10" Canvas.Right="-50" Width="120" Height="120" Background="#FFFFFF" CornerRadius="100" Opacity="0.1"/>
                                                 <Border Canvas.Top="80" Canvas.Right="-30" Width="120" Height="120" Background="#FFFFFF" CornerRadius="100" Opacity="0.1"/>

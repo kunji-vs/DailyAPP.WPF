@@ -8,7 +8,7 @@ namespace DailyAPP.WPF.DTOs
 {
     public class WaitInfoDTO
     {
-        public int WaitId { get; set; }
+        public int WaitId { get; set;}
         public string Title { get; set; }
 
         public string Content { get; set; }

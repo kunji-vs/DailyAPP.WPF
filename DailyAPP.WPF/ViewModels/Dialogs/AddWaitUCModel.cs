@@ -85,6 +85,10 @@ namespace DailyAPP.WPF.ViewModels.Dialogs
                 AccountInfo = parameters.GetValue<AccountInfoDTO>("userInfo");
                 WaitInfo.AccountId = AccountInfo.AccountId;
             }
+            if(parameters.ContainsKey("waitInfo"))
+            {
+                WaitInfo = parameters.GetValue<WaitInfoDTO>("waitInfo");
+            }
             if(parameters.ContainsKey("title"))
             {
                 Title = parameters.GetValue<string>("title");

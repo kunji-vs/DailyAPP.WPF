@@ -44,12 +44,14 @@ namespace DailyAPP.WPF
             containerRegistry.RegisterForNavigation<MemoUC, MemoUCModel>("MemoUC");
             containerRegistry.RegisterForNavigation<SettingsUC, SettingsUCModel>("SettingsUC");
             containerRegistry.RegisterForNavigation<PersonalUC, PersonalUCModel>();
-            containerRegistry.RegisterDialog<AddWaitUC, AddWaitUCModel>();
+
             containerRegistry.RegisterForNavigation<SysSetUC>();
             containerRegistry.RegisterForNavigation<AboutUs>();
 
-            containerRegistry.RegisterSingleton<HttpRestClient>();
+            containerRegistry.RegisterDialog<AddWaitUC, AddWaitUCModel>();
+            containerRegistry.RegisterDialog<CustomMessageBox, CustomMessageBoxModel>();
 
+            containerRegistry.RegisterSingleton<HttpRestClient>();
             containerRegistry.RegisterSingleton<SnackbarMessageQueue>();
 
             var config = new MapperConfiguration(cfg => cfg.AddMaps(typeof(AutoMapperSettings).Assembly),new NullLoggerFactory());
