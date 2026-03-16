@@ -49,6 +49,7 @@ namespace DailyAPP.WPF
             containerRegistry.RegisterForNavigation<AboutUs>();
 
             containerRegistry.RegisterDialog<AddWaitUC, AddWaitUCModel>();
+            containerRegistry.RegisterDialog<AddMemoUC, AddMemoUCModel>();
             containerRegistry.RegisterDialog<CustomMessageBox, CustomMessageBoxModel>();
 
             containerRegistry.RegisterSingleton<HttpRestClient>();

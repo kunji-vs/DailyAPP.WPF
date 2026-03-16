@@ -14,14 +14,14 @@
                     <TextBlock Text="添加备忘录" Foreground="White" FontSize="18" FontWeight="Bold" Margin="15,10" DockPanel.Dock="Top"/>
                     <StackPanel Margin="20" DockPanel.Dock="Top">
                         <TextBlock Text="状态" Foreground="White" VerticalAlignment="Center"/>
-                        <ComboBox SelectedIndex="0" Margin="0,5" Foreground="White">
+                        <ComboBox SelectedIndex="{Binding OperateMemoDataDTO.Status, Mode=TwoWay }" Margin="0,5" Foreground="White">
                             <ComboBoxItem Content="待办"/>
                             <ComboBoxItem Content="已完成"/>
                         </ComboBox>
                     </StackPanel>
-                    <TextBox md:HintAssist.Hint="请输入待办标题" Foreground="White" Margin="20,0" DockPanel.Dock="Top"/>
-                    <TextBox md:HintAssist.Hint="请输入待办内容" Foreground="White" Margin="20,10" DockPanel.Dock="Top" MinHeight="100"/>
-                    <Button Content="添加" Margin="20,0" DockPanel.Dock="Top" Command="{Binding AddMemoCmm}" />
+                    <TextBox md:HintAssist.Hint="请输入备忘录标题" Text="{Binding OperateMemoDataDTO.Title}" Foreground="White" Margin="20,0" DockPanel.Dock="Top"/>
+                    <TextBox md:HintAssist.Hint="请输入备忘录内容" Text="{Binding OperateMemoDataDTO.Content}" Foreground="White" Margin="20,10" DockPanel.Dock="Top" MinHeight="100"/>
+                    <Button Content="{Binding DrawerButtonTitle}" Margin="20,0" DockPanel.Dock="Top" Command="{Binding AddMemoCmm}" />
                 </DockPanel>
             </md:DrawerHost.RightDrawerContent>
 
@@ -31,7 +31,13 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
-                    <TextBox Margin="10,0" VerticalAlignment="Center" md:HintAssist.Hint="请输入备忘录" md:TextFieldAssist.HasClearButton="True"/>
+                    <TextBox Margin="10,0" VerticalAlignment="Center" md:HintAssist.Hint="请输备忘录" md:TextFieldAssist.HasClearButton="True" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"/>
+                    <ComboBox  SelectedIndex="{Binding SelectedFilterIndex, Mode=TwoWay}" Margin="5,0">
+                        <ComboBoxItem Content="全部"/>
+                        <ComboBoxItem Content="待办"/>
+                        <ComboBoxItem Content="已完成"/>
+                    </ComboBox>
+                    <Button Content="筛选" Margin="10,0" VerticalAlignment="Center" Command="{Binding FilterCommand}"/>
                 </StackPanel>
                 <Button Content="添加备忘录" Margin="10" HorizontalAlignment="Right" Command="{Binding ShowAddMemoCmm}" />
 
@@ -46,17 +52,30 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <md:TransitioningContent OpeningEffect="{md:TransitionEffect Kind=FadeIn}">
-                                    <Border Background="#1D91FF" CornerRadius="5" Margin="3">
+                                    <Border CornerRadius="5" Margin="3">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#1D91FF"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="1">
+                                                        <Setter Property="Background" Value="#0EA06F"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <Grid Width="220" Height="180" MaxWidth="250" Margin="3">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="auto"/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
                                             <md:PopupBox HorizontalAlignment="Right" Panel.ZIndex="1">
-                                                <Button Content="删除"></Button>
+                                                <StackPanel>
+                                                    <Button Content="编辑" Command="{Binding DataContext.ShowEditMemoCmm, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" CommandParameter="{Binding}"></Button>
+                                                    <Button Content="删除" Command="{Binding DataContext.DeleteWaitDataCmm, RelativeSource= {RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" CommandParameter="{Binding}"></Button>
+                                                </StackPanel>
                                             </md:PopupBox>
-                                            <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="10,5"/>
-                                            <TextBlock Grid.Row="1" Text="{Binding Content}" Foreground="DarkGray" FontWeight="Bold" Margin="10,5"/>
+                                            <TextBlock Text="{Binding Title, Mode=TwoWay}" FontWeight="Bold" Margin="10,5"/>
+                                            <TextBlock Grid.Row="1" Text="{Binding Content, Mode=TwoWay}" Foreground="DarkGray" FontWeight="Bold" Margin="10,5"/>
                                             <Canvas ClipToBounds="True" Grid.ColumnSpan="2" Grid.RowSpan="2">
                                                 <Border Canvas.Top="10" Canvas.Right="-50" Width="120" Height="120" Background="#FFFFFF" CornerRadius="100" Opacity="0.1"/>
                                                 <Border Canvas.Top="80" Canvas.Right="-30" Width="120" Height="120" Background="#FFFFFF" CornerRadius="100" Opacity="0.1"/>

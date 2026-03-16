@@ -15,6 +15,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace DailyAPP.WPF.ViewModels
 {
@@ -25,6 +26,14 @@ namespace DailyAPP.WPF.ViewModels
 
 
         private string _loginInfo;
+
+        private StatWaitDTO _statWaitInfo;
+
+        public StatWaitDTO StatWaitInfo
+        {
+            get { return _statWaitInfo; }
+            set { _statWaitInfo = value; UpdateCardData(); }
+        }
 
         public string LoginInfo
         {
@@ -54,17 +63,21 @@ namespace DailyAPP.WPF.ViewModels
         public List<MemoInfoDTO> MemoList
         {
             get { return _memoList; }
-            set { _memoList = value; }
+            set { _memoList = value; RaisePropertyChanged(); }
         }
 
         private AccountInfoDTO AccountInfo;
 
         private readonly HttpRestClient httpClient;
-        public HomeUCModel(HttpRestClient httpClient, IDialogService _dialogService)
+
+        private readonly IRegionManager regionManager;
+
+        public HomeUCModel(HttpRestClient httpClient, IDialogService _dialogService,IRegionManager _regionManager)
         {
             CreateData2();
             this.httpClient = httpClient;
             dialogService = _dialogService;
+            regionManager = _regionManager;
         }
 
 
@@ -85,6 +98,29 @@ namespace DailyAPP.WPF.ViewModels
                         if(success)
                         {
                             GetWaitData();
+                        }
+                    }
+                }
+            });
+        });
+
+        public DelegateCommand ShowAddMemoUC => new DelegateCommand(() =>
+        {
+            var param = new DialogParameters();
+            param.Add("userInfo", AccountInfo);
+            param.Add("title", "添加备忘录");
+            dialogService.ShowDialog("AddMemoUC", param, callback =>
+            {
+                if (callback.Result == ButtonResult.OK)
+                {
+                    if (callback.Parameters.ContainsKey("memoInfo"))
+                    {
+                        var waitInfo = callback.Parameters.GetValue<MemoInfoDTO>("memoInfo");
+                        waitInfo.CreateTime = DateTime.Now;
+                        var success = AddMemoData(waitInfo);
+                        if (success)
+                        {
+                            GetMemoData();
                         }
                     }
                 }
@@ -114,6 +150,17 @@ namespace DailyAPP.WPF.ViewModels
             });
         });
 
+        public DelegateCommand<StatPanelInfo> ShowDetailCommand => new DelegateCommand<StatPanelInfo>((panelInfo) =>
+        {
+            if(string.IsNullOrEmpty(panelInfo.ViewName))
+            {
+                return;
+            }
+            NavigationParameters para = new NavigationParameters();
+            para.Add("userInfo", AccountInfo);
+            regionManager.Regions["ContentRegion"].RequestNavigate(panelInfo.ViewName, para);
+        });
+
         /// <summary>
         /// 创建主页卡片数据
         /// </summary>
@@ -136,11 +183,16 @@ namespace DailyAPP.WPF.ViewModels
             var res = httpClient.Excute(req);
             if (res.ResultCode == 200)
             {
-                var statWaitInfo = JsonConvert.DeserializeObject<StatWaitDTO>(res.ResultData.ToString());
-                StatPanelList[0].Result = statWaitInfo.TotalCount.ToString();
-                StatPanelList[1].Result = statWaitInfo.FinishCount.ToString();
-                StatPanelList[2].Result = statWaitInfo.FinishPercent;
+                StatWaitInfo = JsonConvert.DeserializeObject<StatWaitDTO>(res.ResultData.ToString());
             }
+        }
+
+        void UpdateCardData()
+        {
+            StatPanelList[0].Result = StatWaitInfo.TotalCount.ToString();
+            StatPanelList[1].Result = StatWaitInfo.FinishCount.ToString();
+            StatPanelList[2].Result = StatWaitInfo.FinishPercent;
+            StatPanelList[3].Result = StatWaitInfo.MemoCount.ToString();
         }
 
         /// <summary>
@@ -162,6 +214,20 @@ namespace DailyAPP.WPF.ViewModels
             }
         }
 
+        void GetMemoData()
+        {
+            var req = new ApiRequest()
+            {
+                Route = "Data/GetMemoData?accountId=" + AccountInfo.AccountId,
+                Method = RestSharp.Method.GET,
+            };
+            var res = httpClient.Excute(req);
+            if (res?.ResultCode == 200)
+            {
+                var memoinfo = JsonConvert.DeserializeObject<List<MemoInfoDTO>>(res.ResultData.ToString());
+                MemoList = memoinfo.Where(x => x.Status == 0).ToList();
+            }
+        }
         /// <summary>
         /// 添加待办数据
         /// </summary>
@@ -180,6 +246,31 @@ namespace DailyAPP.WPF.ViewModels
                MessageBox.Show("添加失败！"+res.msg);
                 return false;
             }
+            StatWaitInfo.TotalCount++;
+            UpdateCardData();
+            return true;
+        }
+
+        /// <summary>
+        /// 添加备忘录
+        /// </summary>
+        /// <param name="memoInfo"></param>
+        bool AddMemoData(MemoInfoDTO memoInfo)
+        {
+            var req = new ApiRequest()
+            {
+                Route = "Data/AddMemoData",
+                Method = RestSharp.Method.POST,
+                Parameters = memoInfo,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode != 200)
+            {
+                MessageBox.Show("添加失败！" + res.msg);
+                return false;
+            }
+            StatWaitInfo.MemoCount++;
+            UpdateCardData();
             return true;
         }
 
@@ -233,6 +324,41 @@ namespace DailyAPP.WPF.ViewModels
                 return;
             }
             GetWaitData();
+            StatWaitInfo.FinishCount++;
+            UpdateCardData();
+        });
+
+        
+
+        public DelegateCommand<MemoInfoDTO> CompleteMemoCom => new DelegateCommand<MemoInfoDTO>((memoInfo) =>
+        {
+            var para = new DialogParameters();
+            para.Add("message", $"确定要完成备忘录：{memoInfo.Title}吗？");
+            var dialogResult = ButtonResult.OK;
+            dialogService.ShowDialog("CustomMessageBox", para, callback =>
+            {
+                dialogResult = callback.Result;
+            });
+            if (dialogResult != ButtonResult.OK)
+            {
+                return;
+            }
+            var req = new ApiRequest()
+            {
+                Route = "Data/UpdateMemoData",
+                Method = RestSharp.Method.POST,
+                Parameters = memoInfo,
+            };
+            var res = httpClient.Excute(req);
+            if (res.ResultCode != 200)
+            {
+                MessageBox.Show("操作失败！" + res.msg);
+                return;
+            }
+            GetMemoData();
+            StatWaitInfo.MemoCount--;
+            UpdateCardData();
+
         });
 
         void CreateData2()
@@ -255,6 +381,7 @@ namespace DailyAPP.WPF.ViewModels
                 LoginInfo = $"欢迎您，{AccountInfo.Name}！ 今天是：{DateTime.Now.ToString("yyyy年MM月dd日 ddd")}";
                 CreateCardData();
                 GetWaitData();
+                GetMemoData();
             }
 
         }

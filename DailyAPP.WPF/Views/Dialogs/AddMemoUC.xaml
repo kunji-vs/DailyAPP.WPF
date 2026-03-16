@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="DailyAPP.WPF.Views.Dialogs.AddMemoUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DailyAPP.WPF.Views.Dialogs"
+             mc:Ignorable="d" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Height="350" Width="450">
+    <Grid>
+        <DockPanel  LastChildFill="False" Background="#303030">
+            <TextBlock Text="添加备忘录" Foreground="White" FontSize="18" FontWeight="Bold" Margin="15,10" DockPanel.Dock="Top"/>
+            <StackPanel Margin="20" DockPanel.Dock="Top">
+                <TextBlock Text="状态" Foreground="White" VerticalAlignment="Center"/>
+                <ComboBox SelectedIndex="{Binding MemoInfo.Status}" Margin="0,5" Foreground="White">
+                    <ComboBoxItem Content="待办"/>
+                    <ComboBoxItem Content="已完成"/>
+                </ComboBox>
+            </StackPanel>
+            <TextBox md:HintAssist.Hint="请输入备忘录标题" Foreground="White" Margin="20,0" DockPanel.Dock="Top" Text="{Binding MemoInfo.Title}"/>
+            <TextBox md:HintAssist.Hint="请输入备忘录内容" Foreground="White" Margin="20,10,20,0" DockPanel.Dock="Top" MinHeight="100" Text="{Binding MemoInfo.Content}"/>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="取消" Margin="0,0,10,0" DockPanel.Dock="Top" Command="{Binding CancelCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" />
+                <Button Content="确定" Margin="0" DockPanel.Dock="Top" Command="{Binding OKCommand}" />
+            </StackPanel>
+
+        </DockPanel>
+    </Grid>
+</UserControl>
