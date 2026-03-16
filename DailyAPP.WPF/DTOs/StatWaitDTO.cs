@@ -12,9 +12,15 @@ namespace DailyAPP.WPF.DTOs
 
         public int FinishCount { get; set; }
 
+        public int MemoCount { get; set; }
         public string FinishPercent
         {
-            get; set;
+            get
+            {
+                if (FinishCount == 0)
+                    return "0.00%";
+                return $"{(FinishCount * 100.00 / TotalCount).ToString("f2")}%";
+            }
         }
     }
 }

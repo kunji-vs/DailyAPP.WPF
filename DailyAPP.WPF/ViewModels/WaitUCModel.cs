@@ -1,5 +1,6 @@
 ﻿using DailyAPP.WPF.DTOs;
 using DailyAPP.WPF.HttpClient;
+using DailyAPP.WPF.Models;
 using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -25,10 +26,11 @@ namespace DailyAPP.WPF.ViewModels
             set { _drawerHostTitle = value; RaisePropertyChanged(); }
         }
 
-        private enum WaitOperateType
+        private string _drawerButtonTitle = "添加";
+        public string DrawerButtonTitle
         {
-            Add,
-            Edit,
+            get { return _drawerButtonTitle; }
+            set { _drawerButtonTitle = value; RaisePropertyChanged(); }
         }
 
         private WaitOperateType OperateType = WaitOperateType.Add;
@@ -54,6 +56,55 @@ namespace DailyAPP.WPF.ViewModels
             set { _waitList = value; RaisePropertyChanged(); }
         }
 
+        private List<WaitInfoDTO> _allWaitList;
+
+        public List<WaitInfoDTO> AllWaitList
+        {
+            get { return _allWaitList; }
+            set { _allWaitList = value; }
+        }
+
+        private string _filterText;
+        public string FilterText
+        {
+            get => _filterText;
+            set { _filterText = value; RaisePropertyChanged(); }
+        }
+
+        private int _selectedFilterIndex = 0;
+        public int SelectedFilterIndex
+        {
+            get => _selectedFilterIndex;
+            set { _selectedFilterIndex = value; RaisePropertyChanged(); }
+        }
+
+        public DelegateCommand FilterCommand => new DelegateCommand(() =>
+        {
+            if (AllWaitList == null)
+                return;
+
+            IEnumerable<WaitInfoDTO> result = AllWaitList;
+
+            // filter by status based on SelectedFilterIndex: 0=All,1=待办(0),2=已完成(1)
+            if (SelectedFilterIndex == 1)
+            {
+                result = result.Where(x => x.Status == 0);
+            }
+            else if (SelectedFilterIndex == 2)
+            {
+                result = result.Where(x => x.Status == 1);
+            }
+
+            // filter by title if provided (case-insensitive contains)
+            if (!string.IsNullOrWhiteSpace(FilterText))
+            {
+                var key = FilterText.Trim();
+                result = result.Where(x => !string.IsNullOrEmpty(x.Title) && x.Title.IndexOf(key, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            WaitList = result.ToList();
+        });
+
         public WaitUCModel(HttpRestClient httpRestClient )
         {
             httpClient = httpRestClient;
@@ -71,7 +122,9 @@ namespace DailyAPP.WPF.ViewModels
             if (res.ResultCode == 200)
             {
                 var waitinfo = JsonConvert.DeserializeObject<List<WaitInfoDTO>>(res.ResultData.ToString());
-                WaitList = waitinfo.Where(x => x.Status == 0).ToList();
+                AllWaitList = waitinfo.ToList();
+                // 默认展示全部
+                WaitList = AllWaitList.ToList();
                 return;
             }
             
@@ -116,6 +169,7 @@ namespace DailyAPP.WPF.ViewModels
         public DelegateCommand ShowAddWaitCmm => new DelegateCommand(() =>
         {
             DrawerHostTitle = "添加待办";
+            DrawerButtonTitle = "添加";
             OperateWaitDataDTO = new WaitInfoDTO();
             OperateType = WaitOperateType.Add;
             IsRightDrawerOpen = true;
@@ -125,6 +179,7 @@ namespace DailyAPP.WPF.ViewModels
         {
             OperateWaitDataDTO = waitInfo;
             DrawerHostTitle = "编辑待办";
+            DrawerButtonTitle = "保存";
             OperateType = WaitOperateType.Edit;
             IsRightDrawerOpen = true;
         });

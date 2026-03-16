@@ -13,7 +13,8 @@ namespace DailyAPP.WPF.HttpClient
     {
         private RestClient Client;
 
-        private readonly string baseUri = "http://localhost:5011/api/";
+        //private readonly string baseUri = "http://localhost:5011/api/";
+        private readonly string baseUri = "http://al.wkpmc.top:5000/api/";
 
         /// <summary>
         /// 构造函数
